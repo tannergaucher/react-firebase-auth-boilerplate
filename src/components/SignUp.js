@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { auth } from '../firebase'
+import { auth, db } from 'firebase'
 
 import * as routes from '../constants/routes'
 
@@ -29,11 +29,17 @@ class SignUpForm extends React.Component {
     auth
       .doCreateUserWithEmailAndPassword(email, passwordOne)
       .then(authUser => {
-        this.setState({ ...INITIAL_STATE })
-        history.push(routes.HOME)
+        db.doCreateUser(authUser.username.uid, username, email)
+          .then(() => {
+            this.setState({ ...INITIAL_STATE })
+            history.push(routes.HOME)
+          })
+          .catch(error => {
+            this.setState({ error })
+          })
       })
       .catch(error => {
-        this.setState({ error: 'error' })
+        this.setState({ error })
       })
   }
 
